@@ -137,6 +137,38 @@ cron.schedule('* * * * *', async () => {
     }
 });
 
+// --- 4B. CRON-JOB AUTO CLEANUP (PENGHAPUS JADWAL KADALUARSA) ---
+// Berjalan setiap 1 jam sekali (tepat di menit ke-0)
+cron.schedule('0 * * * *', async () => {
+    const sekarang = new Date();
+    
+    try {
+        const semuaJadwal = await prisma.jadwal.findMany();
+        let jumlahDihapus = 0;
+
+        for (const jadwal of semuaJadwal) {
+            // Konversi string YYYY-MM-DD dan HH:MM jadi objek waktu riil (Zona WIB / +07:00)
+            const waktuJadwal = new Date(`${jadwal.tanggal}T${jadwal.jam}:00+07:00`); 
+            
+            // Hitung selisih waktu (antara sekarang dan jadwal) dalam satuan jam
+            const selisihJam = (sekarang.getTime() - waktuJadwal.getTime()) / (1000 * 60 * 60);
+
+            if (selisihJam > 3) {
+                await prisma.jadwal.delete({
+                    where: { id: jadwal.id }
+                });
+                jumlahDihapus++;
+            }
+        }
+
+        if (jumlahDihapus > 0) {
+            console.log(`🧹 Auto-Cleanup: ${jumlahDihapus} jadwal usang berhasil dihapus permanen dari PostgreSQL.`);
+        }
+    } catch (error) {
+        console.error("Gagal menjalankan auto-cleanup database:", error);
+    }
+});
+
 // --- 5. RUNNING BOT ENGINE ---
 bot.launch().then(() => {
     console.log("🚀 OpenClaw Agent + Prisma PostgreSQL Cloud sudah online!");
