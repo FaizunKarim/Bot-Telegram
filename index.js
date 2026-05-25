@@ -2,6 +2,7 @@ import { Telegraf } from 'telegraf';
 import { GoogleGenAI, Type } from '@google/genai';
 import cron from 'node-cron';
 import 'dotenv/config';
+import http from 'http';
 
 // --- IMPORT AMAN UNTUK PRISMA 7 ESM ---
 // 1. Prisma Client
@@ -139,6 +140,15 @@ cron.schedule('* * * * *', async () => {
 // --- 5. RUNNING BOT ENGINE ---
 bot.launch().then(() => {
     console.log("🚀 OpenClaw Agent + Prisma PostgreSQL Cloud sudah online!");
+});
+
+// --- 6. WEB SERVER MINI (SYARAT RENDER.COM) ---
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('OpenClaw Bot is Alive!\n');
+}).listen(PORT, () => {
+    console.log(`🌐 Dummy Web Server menyala di port ${PORT} (Untuk Render)`);
 });
 
 process.once('SIGINT', async () => { await prisma.$disconnect(); bot.stop('SIGINT'); });
