@@ -4,19 +4,21 @@ import cron from 'node-cron';
 import 'dotenv/config';
 
 // --- IMPORT AMAN UNTUK PRISMA 7 ESM ---
+// 1. Prisma Client
 import prismaPkg from '@prisma/client';
 const { PrismaClient } = prismaPkg;
 
-import adapterPkg from '@prisma/adapter-pg';
-const { PrismaPg } = adapterPkg;
+// 2. PrismaPg Adapter (WAJIB pakai kurung kurawal)
+import { PrismaPg } from '@prisma/adapter-pg';
 
+// 3. PG Pool
 import pgPkg from 'pg';
 const { Pool } = pgPkg;
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// --- INISIALISASI PRISMA 7 DENGAN ADAPTER (WAJIB) ---
+// --- INISIALISASI PRISMA 7 DENGAN ADAPTER ---
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
