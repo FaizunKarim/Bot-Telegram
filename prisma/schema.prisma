@@ -1,0 +1,19 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Jadwal {
+  id              Int      @id @default(autoincrement())
+  userId          BigInt   @map("user_id")
+  tanggal         String   
+  jam             String   
+  agenda          String
+  sudahDiingatkan Boolean  @default(false) @map("sudah_diingatkan")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("jadwal")
+}
